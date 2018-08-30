@@ -1,7 +1,7 @@
 # Личный проект «Кэндишоп» [![Build status][travis-image]][travis-url]
 
 * Студент: [Олеся Севостьянова](https://up.htmlacademy.ru/javascript/15/user/498579).
-* Наставник: `Неизвестно`.
+* Наставник: Генрих Фетищев.
 
 ---
 
