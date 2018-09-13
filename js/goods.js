@@ -2,7 +2,7 @@
 
 var CARDS_AMOUNT = 26;
 
-var ratingClasses = [
+var arrRatingClasses = [
   'stars__rating--one',
   'stars__rating--two',
   'stars__rating--three',
@@ -113,9 +113,8 @@ var getRandomIngredientsAmount = function (array) {
       resultRandomIngredients.push(array[indexIngredient]);
     }
   }
-  return resultRandomIngredients;
+  return resultRandomIngredients.join(', ');
 };
-// console.log(getRandomIngredientsAmount(arrProductIngredients));
 
 // Создаем массив объектов с данными о товарах
 var arrProductInfo = [];
@@ -144,9 +143,11 @@ document.querySelector('.catalog__load').classList.add('visually-hidden');
 var productCardTemplate = document.querySelector('#card').content.querySelector('article');
 var catalogCardsContainer = document.querySelector('.catalog__cards');
 
-for (var i = 0; i < CARDS_AMOUNT; i++) {
-  var productCard = productCardTemplate.cloneNode(true);
+var getTitle = function (productCard) {
+  productCard.querySelector('.card__title').textContent = arrProductInfo[i].name;
+};
 
+var getAmount = function (productCard) {
   var amount = arrProductInfo[i].amount;
   productCard.classList.remove('card--in-stock');
   if (amount === 0) {
@@ -156,42 +157,76 @@ for (var i = 0; i < CARDS_AMOUNT; i++) {
   } else {
     productCard.classList.add('card--in-stock');
   }
+  return amount;
+};
 
-  // изображение
-  var productPicture = productCard.querySelector('.card__img');
-  productPicture.src = arrProductInfo[i].picture;
-  productPicture.alt = arrProductInfo[i].name;
-
-  // название
-  productCard.querySelector('.card__title').textContent = arrProductInfo[i].name;
-
-  // стоимость
-  var productPrice = productCard.querySelector('.card__price');
-  productPrice.childNodes[0].textContent = arrProductInfo[i].price;
-  productPrice.childNodes[2].textContent = '/' + ' ' + arrProductInfo[i].weight + ' ' + 'Г';
-
-  // сахар
+var hasSugar = function (productCard) {
   if (arrProductInfo[i].nutritionFacts.sugar) {
     productCard.querySelector('.card__characteristic').textContent = 'Без сахара.' + ' ' + arrProductInfo[i].nutritionFacts.energy + ' ' + 'ккал';
   } else {
     productCard.querySelector('.card__characteristic').textContent = 'Содержит сахар.' + ' ' + arrProductInfo[i].nutritionFacts.energy + ' ' + 'ккал';
   }
+};
 
-  // состав
-  productCard.querySelector('.card__composition-list').textContent = arrProductInfo[i].nutritionFacts.contents;
-
-  // рейтинг
+var getRating = function (productCard) {
   // кол-во отзывов
   productCard.querySelector('.star__count').textContent = '(' + arrProductInfo[i].rating.number + ')';
   // выставление звезд
   var productRating = productCard.querySelector('.stars__rating');
   productRating.classList.remove('stars__rating--five');
+
   var ratingIndex = arrProductInfo[i].rating.value - 1;
 
-  if (ratingIndex > -1 && ratingClasses[ratingIndex]) {
-    productRating.classList.add(ratingClasses[ratingIndex]);
+  if (ratingIndex > -1 && arrRatingClasses[ratingIndex]) {
+    productRating.classList.add(arrRatingClasses[ratingIndex]);
   }
+};
+
+var getImage = function (productCard) {
+  // изображение
+  var productPicture = productCard.querySelector('.card__img');
+  productPicture.src = arrProductInfo[i].picture;
+  productPicture.alt = arrProductInfo[i].name;
+};
+
+var getPrice = function (productCard) {
+  // стоимость
+  var productPrice = productCard.querySelector('.card__price');
+  productPrice.childNodes[0].textContent = arrProductInfo[i].price;
+  productPrice.childNodes[2].textContent = '/' + ' ' + arrProductInfo[i].weight + ' ' + 'Г';
+};
+
+var getContents = function (productCard) {
+  // состав
+  productCard.querySelector('.card__composition-list').textContent = arrProductInfo[i].nutritionFacts.contents;
+};
+
+for (var i = 0; i < CARDS_AMOUNT; i++) {
+  var productCard = productCardTemplate.cloneNode(true);
+  getTitle(productCard);
+  getAmount(productCard);
+  hasSugar(productCard);
+  getRating(productCard);
+  getImage(productCard);
+  getPrice(productCard);
+  getContents(productCard);
+
   catalogCardsContainer.appendChild(productCard);
 }
 
+// корзина
+document.querySelector('.goods__cards').classList.remove('goods__cards--empty');
+document.querySelector('.goods__card-empty').classList.add('visually-hidden');
 
+var basketProductCardTemplate = document.querySelector('#card-order').content.querySelector('article');
+var basketCardsContainer = document.querySelector('.goods__cards');
+
+for (var l = 0; l < 3; l++) {
+  var basketProductCard = basketProductCardTemplate.cloneNode(true);
+
+  basketProductCard.querySelector('.card-order__title').textContent = arrProductInfo[l].name;
+  basketProductCard.querySelector('.card-order__price').textContent = arrProductInfo[l].price;
+  basketProductCard.querySelector('.card-order__count').value = arrProductInfo[l].amount;
+
+  basketCardsContainer.appendChild(basketProductCard);
+}
