@@ -204,6 +204,11 @@ var setContents = function (productCard, contentsList) {
   productCard.querySelector(contentsList).textContent = arrProductInfo[i].nutritionFacts.contents;
 };
 
+var setAddToCartHandler = function (productCard, i) {
+  productCard.querySelector('.card__btn')
+    .setAttribute('onclick', 'addToBasket(' + JSON.stringify(arrProductInfo[i]) + ')');
+};
+
 var productCardFragment = document.createDocumentFragment();
 for (var i = 0; i < CARDS_AMOUNT; i++) {
 
@@ -219,24 +224,110 @@ for (var i = 0; i < CARDS_AMOUNT; i++) {
   setImage(productCard, productPicture);
   setPrice(productCard, productPrice);
   setContents(productCard, '.card__composition-list');
+  setAddToCartHandler(productCard, i);
 
   productCardFragment.appendChild(productCard);
 }
 catalogCardsContainer.appendChild(productCardFragment);
 
-// корзина
-document.querySelector('.goods__cards').classList.remove('goods__cards--empty');
-document.querySelector('.goods__card-empty').classList.add('visually-hidden');
+// отмечаем товар как избранное
+var buttonFavourite = document.getElementsByClassName('card__btn-favorite');
+var onButtonFavouriteClick = function (event) {
+  event.preventDefault();
+  event.target.classList.toggle('card__btn-favorite--selected');
+};
 
-var basketProductCardTemplate = document.querySelector('#card-order').content.querySelector('article');
-var basketCardsContainer = document.querySelector('.goods__cards');
-
-for (var l = 0; l < 3; l++) {
-  var basketProductCard = basketProductCardTemplate.cloneNode(true);
-
-  basketProductCard.querySelector('.card-order__title').textContent = arrProductInfo[l].name;
-  basketProductCard.querySelector('.card-order__price').textContent = arrProductInfo[l].price;
-  basketProductCard.querySelector('.card-order__count').value = arrProductInfo[l].amount;
-
-  basketCardsContainer.appendChild(basketProductCard);
+for (var n = 0; n < buttonFavourite.length; n++) {
+  buttonFavourite[n].addEventListener('click', onButtonFavouriteClick);
 }
+
+// добавляем товар в корзину
+// Задание 16.2
+window.addToBasket = function (item) {
+  event.preventDefault();
+
+  var orderedAmount = 1;
+  var addedProduct = Object.assign({}, item, {
+    quantity: orderedAmount
+  });
+  var basketCardsContainer = document.querySelector('.goods__cards');
+
+  // Проверяем есть ли уже такой товар в корзине
+  // если есть, то увеличиваем кол-во (quantity) на 1
+  var names = basketCardsContainer.getElementsByClassName('card-order__title');
+
+  var existedElement;
+
+  Array.prototype.forEach.call(names, function (element) {
+    if (addedProduct.name === element.textContent) {
+      existedElement = element.closest('.card-order');
+    }
+  });
+
+  if (existedElement) {
+    var countElement = existedElement.querySelector('.card-order__count');
+    countElement.value = parseInt(countElement.value, 10) + 1;
+  } else {
+    var basketProductCardTemplate = document.querySelector('#card-order').content.querySelector('article');
+    var basketProductCard = basketProductCardTemplate.cloneNode(true);
+
+    basketProductCard.querySelector('.card-order__title').textContent = addedProduct.name;
+    basketProductCard.querySelector('.card-order__img').src = addedProduct.picture;
+    basketProductCard.querySelector('.card-order__price').textContent = addedProduct.price;
+    basketProductCard.querySelector('.card-order__count').value = addedProduct.quantity;
+
+    basketCardsContainer.appendChild(basketProductCard);
+  }
+
+  if (
+    basketCardsContainer.getElementsByClassName('card-order')
+    && basketCardsContainer.getElementsByClassName('card-order').length
+  ) {
+    document.querySelector('.goods__cards').classList.remove('goods__cards--empty');
+    document.querySelector('.goods__card-empty').classList.add('visually-hidden');
+  }
+};
+
+// Задание 16.3
+// Переключение вкладок в форме оформления заказа
+var deliveryContainer = document.querySelector('.deliver');
+
+deliveryContainer.addEventListener('click', function () {
+  switchTab(deliveryContainer, '.deliver__store', '.deliver__courier');
+});
+
+function switchTab(block, blockOpened, blockClosed) {
+
+  var currentBlock = block.querySelector('.' + event.target.id);
+  var blockToOpen = block.querySelector(blockOpened);
+  var blockToClose = block.querySelector(blockClosed);
+
+  currentBlock.classList.remove('visually-hidden');
+
+  if (currentBlock === blockToOpen) {
+    blockToClose.classList.add('visually-hidden');
+  } else {
+    blockToOpen.classList.add('visually-hidden');
+  }
+}
+
+// Задание16.4
+// Первая фаза работы фильтра по цене
+// пока можем описать только отпускание, которое будет приводить к изменению значения блоков
+var sliderContainer = document.querySelector('.range');
+var sliderPinMin = sliderContainer.querySelector('.range__btn--left');
+var sliderPinMax = sliderContainer.querySelector('.range__btn--right');
+
+var sliderPinEventHandler = function (event, priceElement) {
+  event.preventDefault();
+
+  priceElement.textContent = event.clientX;
+};
+
+sliderPinMin.addEventListener('mouseup', function (event) {
+  sliderPinEventHandler(event, sliderContainer.querySelector('.range__price--min'));
+});
+sliderPinMax.addEventListener('mouseup', function (event) {
+  sliderPinEventHandler(event, sliderContainer.querySelector('.range__price--max'));
+});
+
