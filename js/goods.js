@@ -229,15 +229,13 @@ for (var i = 0; i < CARDS_AMOUNT; i++) {
 catalogCardsContainer.appendChild(productCardFragment);
 
 // отмечаем товар как избранное
-var buttonFavourite = document.getElementsByClassName('card__btn-favorite');
 var onButtonFavouriteClick = function (event) {
-  event.preventDefault();
-  event.target.classList.toggle('card__btn-favorite--selected');
+  if (event.target.classList.contains('card__btn-favorite')) {
+    event.target.classList.toggle('card__btn-favorite--selected');
+  }
 };
-
-for (var n = 0; n < buttonFavourite.length; n++) {
-  buttonFavourite[n].addEventListener('click', onButtonFavouriteClick);
-}
+var cardsContainer = document.querySelector('.catalog__cards'); // контейнер с товарами
+cardsContainer.addEventListener('click', onButtonFavouriteClick);
 
 // добавляем товар в корзину
 // Задание 16.2
@@ -248,9 +246,8 @@ var onBasketButtonClick = function (event) {
   if (event.target.classList.contains('card__btn')) {
     var chosenProduct = event.target.closest('article'); // находим карточку, по которой был клик
 
-    var orderedAmount = 1;
     var addedProduct = Object.assign({}, chosenProduct, {
-      quantity: orderedAmount
+      quantity: 1
     });
 
     var basketCardsContainer = document.querySelector('.goods__cards'); // контейнер товаров в корзине
@@ -287,8 +284,6 @@ var onBasketButtonClick = function (event) {
     }
   }
 };
-
-var cardsContainer = document.querySelector('.catalog__cards'); // контейнер с товарами
 cardsContainer.addEventListener('click', onBasketButtonClick);
 
 // Удаление из корзины
