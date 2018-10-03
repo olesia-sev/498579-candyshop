@@ -368,26 +368,6 @@ function changeElementsAccessibility(elements, isAccessible) {
   });
 }
 
-// Задание16.4
-// Первая фаза работы фильтра по цене
-// пока можем описать только отпускание, которое будет приводить к изменению значения блоков
-var sliderContainer = document.querySelector('.range');
-var sliderPinMin = sliderContainer.querySelector('.range__btn--left');
-var sliderPinMax = sliderContainer.querySelector('.range__btn--right');
-
-var sliderPinEventHandler = function (event, priceElement) {
-  event.preventDefault();
-
-  priceElement.textContent = event.clientX;
-};
-
-sliderPinMin.addEventListener('mouseup', function (event) {
-  sliderPinEventHandler(event, sliderContainer.querySelector('.range__price--min'));
-});
-sliderPinMax.addEventListener('mouseup', function (event) {
-  sliderPinEventHandler(event, sliderContainer.querySelector('.range__price--max'));
-});
-
 // Задание 17
 // Проверяем валидность форм
 var cardPaymentContainer = document.querySelector('.payment__card');
@@ -473,11 +453,32 @@ cardHolderName.addEventListener('invalid', function () {
 
 cardPaymentContainer.addEventListener('change', onChangeCardStatus);
 
-var form = document.querySelector('form');
+var form = document.querySelector('.buy form');
 
 form.addEventListener('submit', function (event) {
   event.preventDefault();
 
   var successModal = document.querySelector('.modal--success');
   successModal.classList.remove('modal--hidden');
+});
+
+
+// Задание16.4
+// Первая фаза работы фильтра по цене
+// пока можем описать только отпускание, которое будет приводить к изменению значения блоков
+var sliderContainer = document.querySelector('.range');
+var sliderPinMin = sliderContainer.querySelector('.range__btn--left');
+var sliderPinMax = sliderContainer.querySelector('.range__btn--right');
+
+var sliderPinEventHandler = function (event, priceElement) {
+  event.preventDefault();
+
+  priceElement.textContent = event.clientX;
+};
+
+sliderPinMin.addEventListener('mouseup', function (event) {
+  sliderPinEventHandler(event, sliderContainer.querySelector('.range__price--min'));
+});
+sliderPinMax.addEventListener('mouseup', function (event) {
+  sliderPinEventHandler(event, sliderContainer.querySelector('.range__price--max'));
 });
