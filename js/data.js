@@ -151,12 +151,12 @@
   var productCardTemplate = document.querySelector('#card').content.querySelector('article');
   var catalogCardsContainer = document.querySelector('.catalog__cards');
 
-  var setTitle = function (productCard, cardTitle) {
-    productCard.querySelector(cardTitle).textContent = arrProductInfo[i].name;
+  var setTitle = function (productCard, cardTitle, index) {
+    productCard.querySelector(cardTitle).textContent = arrProductInfo[index].name;
   };
 
-  var setAmount = function (productCard) {
-    var amount = arrProductInfo[i].amount;
+  var setAmount = function (productCard, index) {
+    var amount = arrProductInfo[index].amount;
     productCard.classList.remove('card--in-stock');
     if (amount === 0) {
       productCard.classList.add('card--soon');
@@ -168,42 +168,42 @@
     return amount;
   };
 
-  var hasSugar = function (productCard) {
-    if (arrProductInfo[i].nutritionFacts.sugar) {
-      productCard.querySelector('.card__characteristic').textContent = 'Без сахара.' + ' ' + arrProductInfo[i].nutritionFacts.energy + ' ' + 'ккал';
+  var hasSugar = function (productCard, index) {
+    if (arrProductInfo[index].nutritionFacts.sugar) {
+      productCard.querySelector('.card__characteristic').textContent = 'Без сахара.' + ' ' + arrProductInfo[index].nutritionFacts.energy + ' ' + 'ккал';
     } else {
-      productCard.querySelector('.card__characteristic').textContent = 'Содержит сахар.' + ' ' + arrProductInfo[i].nutritionFacts.energy + ' ' + 'ккал';
+      productCard.querySelector('.card__characteristic').textContent = 'Содержит сахар.' + ' ' + arrProductInfo[index].nutritionFacts.energy + ' ' + 'ккал';
     }
   };
 
-  var setRating = function (productCard, reviewsAmount, productRating) {
+  var setRating = function (productCard, reviewsAmount, productRating, index) {
     // кол-во отзывов
-    productCard.querySelector(reviewsAmount).textContent = '(' + arrProductInfo[i].rating.number + ')';
+    productCard.querySelector(reviewsAmount).textContent = '(' + arrProductInfo[index].rating.number + ')';
     // выставление звезд
     productRating.classList.remove('stars__rating--five');
 
-    var ratingIndex = arrProductInfo[i].rating.value - 1;
+    var ratingIndex = arrProductInfo[index].rating.value - 1;
 
     if (ratingIndex > -1 && arrRatingClasses[ratingIndex]) {
       productRating.classList.add(arrRatingClasses[ratingIndex]);
     }
   };
 
-  var setImage = function (productCard, productPicture) {
+  var setImage = function (productCard, productPicture, index) {
     // изображение
-    productPicture.src = arrProductInfo[i].picture;
-    productPicture.alt = arrProductInfo[i].name;
+    productPicture.src = arrProductInfo[index].picture;
+    productPicture.alt = arrProductInfo[index].name;
   };
 
-  var setPrice = function (productCard, productPrice) {
+  var setPrice = function (productCard, productPrice, index) {
     // стоимость
-    productPrice.childNodes[0].textContent = arrProductInfo[i].price;
-    productPrice.childNodes[2].textContent = '/' + ' ' + arrProductInfo[i].weight + ' ' + 'Г';
+    productPrice.childNodes[0].textContent = arrProductInfo[index].price;
+    productPrice.childNodes[2].textContent = '/' + ' ' + arrProductInfo[index].weight + ' ' + 'Г';
   };
 
-  var setContents = function (productCard, contentsList) {
+  var setContents = function (productCard, contentsList, index) {
     // состав
-    productCard.querySelector(contentsList).textContent = arrProductInfo[i].nutritionFacts.contents;
+    productCard.querySelector(contentsList).textContent = arrProductInfo[index].nutritionFacts.contents;
   };
 
   var productCardFragment = document.createDocumentFragment();
@@ -214,13 +214,13 @@
     var productPicture = productCard.querySelector('.card__img');
     var productPrice = productCard.querySelector('.card__price');
 
-    setTitle(productCard, '.card__title');
-    setAmount(productCard);
-    hasSugar(productCard);
-    setRating(productCard, '.star__count', productRating);
-    setImage(productCard, productPicture);
-    setPrice(productCard, productPrice);
-    setContents(productCard, '.card__composition-list');
+    setTitle(productCard, '.card__title', i);
+    setAmount(productCard, i);
+    hasSugar(productCard, i);
+    setRating(productCard, '.star__count', productRating, i);
+    setImage(productCard, productPicture, i);
+    setPrice(productCard, productPrice, i);
+    setContents(productCard, '.card__composition-list', i);
 
     productCardFragment.appendChild(productCard);
   }
