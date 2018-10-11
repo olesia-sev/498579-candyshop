@@ -1,7 +1,8 @@
+/*
 'use strict';
 (function () {
 
-  /* Слайдер */
+  /!* Слайдер *!/
   var sliderContainer = document.querySelector('.range');
   var sliderPinMin = sliderContainer.querySelector('.range__btn--left');
   var sliderPinMax = sliderContainer.querySelector('.range__btn--right');
@@ -132,3 +133,4 @@
   }
 
 })();
+*/

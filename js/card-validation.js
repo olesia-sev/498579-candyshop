@@ -84,13 +84,59 @@
 
   cardPaymentContainer.addEventListener('change', onChangeCardStatus);
 
+  // отправка формы и показ моадальных об успехе/ошибке
   var form = document.querySelector('.buy form');
-
-  form.addEventListener('submit', function (event) {
-    event.preventDefault();
-
-    var successModal = document.querySelector('.modal--success');
-    successModal.classList.remove('modal--hidden');
+  form.addEventListener('submit', function (evt) {
+    window.backend.sendData(new FormData(form), successHandler, errorHandler);
+    evt.preventDefault();
+    formReset(form);
   });
+
+  // закрытие модальных окон
+  var successHandler = function () {
+    window.data.modalSuccess.classList.remove('modal--hidden');
+    document.addEventListener('keydown', onEscCloseModalSuccess);
+  };
+
+  var errorHandler = function () {
+    window.data.modalError.classList.remove('modal--hidden');
+    document.addEventListener('keydown', onEscCloseModalError);
+  };
+
+  var onEscCloseModalError = function (evt) {
+    window.functions.isEscEvent(evt, closeModalError);
+  };
+
+  var closeModalError = function () {
+    window.data.modalError.classList.add('modal--hidden');
+    document.removeEventListener('keydown', onEscCloseModalError);
+  };
+
+  var onEscCloseModalSuccess = function (evt) {
+    window.functions.isEscEvent(evt, closeModalSuccess);
+  };
+
+  var closeModalSuccess = function () {
+    window.data.modalSuccess.classList.add('modal--hidden');
+    document.removeEventListener('keydown', onEscCloseModalSuccess);
+  };
+
+  window.data.closeModalError.addEventListener('click', closeModalError);
+  window.data.closeModalError.addEventListener('keydown', function (evt) {
+    window.functions.isEscEvent(evt, closeModalError);
+  });
+
+  window.data.closeModalSuccess.addEventListener('click', closeModalSuccess);
+  window.data.closeModalSuccess.addEventListener('keydown', function (evt) {
+    window.functions.isEscEvent(evt, closeModalSuccess);
+  });
+
+  // Сбрасываем данные формы
+  var formReset = function (element) {
+    var inputs = element.getElementsByTagName('input');
+    window.functions.forEach(inputs, function (input) {
+      input.value = '';
+    });
+  };
 
 })();
