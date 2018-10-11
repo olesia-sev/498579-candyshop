@@ -4,7 +4,7 @@
 
 // добавляем товар в корзину
   var onBasketButtonClick = function (event) {
-    event.preventDefault(); // иначе по клику нас переносит наверх
+    event.preventDefault();
 
     if (event.target.classList.contains('card__btn')) {
       var chosenProduct = event.target.closest('article'); // находим карточку, по которой был клик
@@ -68,18 +68,14 @@
     var targetProductCard = event.target.closest('article');
     var targetAmountInput = targetProductCard.querySelector('.card-order__count');
 
-    if (targetAmountInput.value <= 0) {
-      targetProductCard.parentNode.removeChild(targetProductCard);
+    if (event.target.classList.contains('card-order__btn--increase')) {
+      targetAmountInput.value++;
+    } else if (event.target.classList.contains('card-order__btn--decrease')) {
+      targetAmountInput.value--;
     }
 
-    if (event.target.classList.contains('card-order__btn--increase')) {
-
-      targetAmountInput.value++;
-
-    } else if (event.target.classList.contains('card-order__btn--decrease')) {
-
-      targetAmountInput.value--;
-
+    if (parseInt(targetAmountInput.value, 10) === 0) {
+      targetProductCard.parentNode.removeChild(targetProductCard);
     }
   };
   basketContainer.addEventListener('click', onChangeAmountButtonClick);

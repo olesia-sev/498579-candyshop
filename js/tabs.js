@@ -1,6 +1,6 @@
 'use strict';
 
-(function () {
+(function (fn) {
 
   addChangeEventForRadios(document.getElementsByName('method-deliver'));
   addChangeEventForRadios(document.getElementsByName('pay-method'));
@@ -8,12 +8,12 @@
   function addChangeEventForRadios(radios) {
     var tabsWrappers = [];
 
-    window.functions.forEach(radios, function (radio) {
+    fn.forEach(radios, function (radio) {
       tabsWrappers.push('.' + radio.id);
     });
 
     var changeRadioEventHandler = function (event) {
-      window.functions.forEach(tabsWrappers, function (tabWrapper) {
+      fn.forEach(tabsWrappers, function (tabWrapper) {
         var currentElement = document.querySelector(tabWrapper);
         if (currentElement) {
           currentElement.classList.add('visually-hidden');
@@ -33,7 +33,7 @@
       changeElementsAccessibility(targetElement.getElementsByTagName('textarea'), false);
     };
 
-    window.functions.forEach(radios, function (radio) {
+    fn.forEach(radios, function (radio) {
       radio.addEventListener('change', changeRadioEventHandler);
     });
   }
@@ -45,9 +45,9 @@
       return;
     }
 
-    window.functions.forEach(elements, function (element) {
+    fn.forEach(elements, function (element) {
       element.disabled = !!isAccessible;
     });
   }
 
-})();
+})(window.functions);

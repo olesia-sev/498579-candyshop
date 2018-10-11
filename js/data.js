@@ -17,6 +17,9 @@
     'stars__rating--five',
   ];
 
+  window.data = {};
+  window.data.arrProductInfo = [];
+
   var setTitle = function (productCard, cardTitle, item) {
     cardTitle.textContent = item.name;
   };
@@ -116,6 +119,8 @@
     catalogCardsContainer.appendChild(productCardFragment);
 
     initCardsBlock();
+    window.initRangeSlider(cards);
+    window.data.arrProductInfo = cards;
   };
 
   var errorHandler = function () {
@@ -134,11 +139,9 @@
   var cardsContainer = document.querySelector('.catalog__cards'); // контейнер с товарами
   cardsContainer.addEventListener('click', onContentButtonClick);
 
-  window.data = {
-    modalError: modalError,
-    modalSuccess: modalSuccess,
-    closeModalError: closeModalError,
-    closeModalSuccess: closeModalSuccess
-  };
+  window.data.modalError = modalError;
+  window.data.modalSuccess = modalSuccess;
+  window.data.closeModalError = closeModalError;
+  window.data.closeModalSuccess = closeModalSuccess;
 
 })();

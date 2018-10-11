@@ -1,8 +1,7 @@
-/*
 'use strict';
 (function () {
 
-  /!* Слайдер *!/
+  /* Слайдер */
   var sliderContainer = document.querySelector('.range');
   var sliderPinMin = sliderContainer.querySelector('.range__btn--left');
   var sliderPinMax = sliderContainer.querySelector('.range__btn--right');
@@ -26,7 +25,7 @@
 
       // запоминаем начальные координаты
       var startCoords = {
-        x: evt.clientX
+        x: evt.clientX,
       };
 
       // При каждом движении мыши нам нужно обновлять смещение
@@ -39,11 +38,11 @@
         moveEvt.target.style.zIndex = 10;
 
         var shift = {
-          x: startCoords.x - moveEvt.clientX
+          x: startCoords.x - moveEvt.clientX,
         };
 
         startCoords = {
-          x: moveEvt.clientX
+          x: moveEvt.clientX,
         };
 
         // Находим положение пина
@@ -97,12 +96,12 @@
     });
   };
 
-  function initRangeSlider(leftPin, rightPin, line, fillLine) {
+  function _initRangeSlider(arrProductInfo, leftPin, rightPin, line, fillLine) {
     leftPin.style.left = fillLine.style.left = 0;
     rightPin.style.right = fillLine.style.right = 0;
 
-    var minPrice = getMinPrice(window.data.arrProductInfo);
-    var maxPrice = getMaxPrice(window.data.arrProductInfo);
+    var minPrice = getMinPrice(arrProductInfo);
+    var maxPrice = getMaxPrice(arrProductInfo);
 
     sliderMinContainer.textContent = minPrice;
     sliderMaxContainer.textContent = maxPrice;
@@ -110,8 +109,6 @@
     movePin(leftPin, line, minPrice, maxPrice);
     movePin(rightPin, line, minPrice, maxPrice);
   }
-
-  initRangeSlider(sliderPinMin, sliderPinMax, sliderPath, sliderFillLine);
 
   // Находим минимальное и максимальные занчения цен в массиве с карточками продуктов
   function getMinPrice(array) {
@@ -132,5 +129,8 @@
     }, undefined);
   }
 
+  window.initRangeSlider = function (arrProductInfo) {
+    _initRangeSlider(arrProductInfo, sliderPinMin, sliderPinMax, sliderPath, sliderFillLine);
+  };
+
 })();
-*/
