@@ -105,7 +105,7 @@
 
     window.rangeSliderPrice = {
       min: minPrice,
-      max: maxPrice,
+      max: maxPrice
     };
 
     sliderMinContainer.textContent = minPrice;
