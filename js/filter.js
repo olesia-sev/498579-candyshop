@@ -1,17 +1,92 @@
 'use strict';
 (function () {
-  /*
-    var countIndex = document.querySelectorAll('.input-btn__item-count');
-
-    var changeCountIndex = function (array) {
-      for (var i = 0; i < countIndex.length; i++) {
-        countIndex[i].textContent = '(' + array.length + ')';
-      }
-    };
-  */
-
 
   var selectedFoodTypes = [];
+
+  var sortBy;
+
+  function immutableSort(arr, compareFunction) {
+    return arr.concat().sort(compareFunction);
+  }
+
+  function getSorted(sortOption, arr) {
+    if (!sortOption) {
+      return arr;
+    }
+
+    var sorted = [];
+
+    switch (sortOption) {
+      // Сначала популярные
+      case 'popular':
+        sorted = arr;
+        break;
+
+      // Сначала дорогие
+      case 'expensive':
+        sorted = immutableSort(arr, function (a, b) {
+          if (a.price > b.price) {
+            return -1;
+          }
+
+          if (a.price < b.price) {
+            return 1;
+          }
+
+          return 0;
+        });
+        break;
+
+      // Сначала дешёвые
+      case 'cheep':
+        sorted = immutableSort(arr, function (a, b) {
+          if (a.price > b.price) {
+            return 1;
+          }
+
+          if (a.price < b.price) {
+            return -1;
+          }
+
+          return 0;
+        });
+        break;
+
+      // По рейтингу
+      case 'rating':
+        sorted = immutableSort(arr, function (a, b) {
+          // товары, расположенные в порядке убывания рейтинга
+          if (a.rating.value > b.rating.value) {
+            return -1;
+          }
+
+          if (a.rating.value < b.rating.value) {
+            return 1;
+          }
+
+          // при совпадении рейтинга, выше показывается товар, у которого больше голосов в рейтинге.
+          if (a.rating.number > b.rating.number) {
+            return -1;
+          }
+
+          if (a.rating.number < b.rating.number) {
+            return 1;
+          }
+
+          return 0;
+        });
+        break;
+    }
+    return sorted;
+  }
+
+  var sortHandler = function (evt) {
+    sortBy = evt.target.value;
+
+    rerenderProductCards(filter(selectedFoodTypes, [], sortBy));
+  };
+
+  addFilterEventListener(document.querySelectorAll('input[name="sort"]'), sortHandler, 'change');
 
   // функция перерисовки карточек
   var rerenderProductCards = function (filteredCards) {
@@ -47,29 +122,11 @@
       selectedFoodTypes = removeFromArray(selectedFoodTypes, type);
     }
 
-    var arrSelectedProductsByType = filter(selectedFoodTypes, []);
+    var arrSelectedProductsByType = filter(selectedFoodTypes, [], sortBy);
 
     // Показываем карточки соответствующие выбранному фильтру
     rerenderProductCards(arrSelectedProductsByType);
   }
-
-  /*  function foodIngredientsChangeEventHandler(evt, good) {
-      var type = getLabelText(evt.target.id);
-
-      if (!type) {
-        return;
-      }
-      if (evt.target.checked && good.nutritionFacts.sugar === false) {
-        selectedFoodTypes = pushToArray(selectedFoodTypes, type);
-      } else {
-        selectedFoodTypes = removeFromArray(selectedFoodTypes, type);
-      }
-      var arrSelectedProductsByIngredient = filter(selectedFoodTypes, []);
-      console.log(arrSelectedProductsByIngredient);
-
-      rerenderProductCards(arrSelectedProductsByIngredient);
-    }*/
-
 
   function getLabelText(inputId) {
     var label = document.querySelector('label[for="' + inputId + '"]');
@@ -124,9 +181,7 @@
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
 
-        // TODO filter(selectedFoodTypes, [], rangeSliderPrice)
-        // console.log(filter(selectedFoodTypes, []));
-        rerenderProductCards(filter(selectedFoodTypes));
+        rerenderProductCards(filter(selectedFoodTypes, [], sortBy));
       };
 
       document.addEventListener('mousemove', onMouseMove);
@@ -135,12 +190,11 @@
   }
 
   addFilterEventListener(document.querySelectorAll('input[name="food-type"]'), foodTypeChangeEventHandler, 'change');
-  // addFilterEventListener(document.querySelectorAll('input[name="food-property"]'), foodIngredientsChangeEventHandler, 'change');
 
   addRangeSliderEventListener(document.querySelector('.range__btn--left'), rangeSliderMinEventHandler);
   addRangeSliderEventListener(document.querySelector('.range__btn--right'), rangeSliderMaxEventHandler);
 
-  function filter(kinds, nutritionFacts) {
+  function filter(kinds, nutritionFacts, sortOption) {
     function sortByKnd(good) {
       if (!kinds.length) {
         return true;
@@ -170,12 +224,11 @@
       return good.price >= window.rangeSliderPrice.min && good.price <= window.rangeSliderPrice.max;
     }
 
-    return window.data.arrProductInfo
-      .filter(sortByKnd)
-      .filter(sortByIngredients)
-      .filter(sortByPrice);
+    return getSorted(sortOption, window.data.arrProductInfo
+        .filter(sortByKnd)
+        .filter(sortByIngredients)
+        .filter(sortByPrice)
+    );
   }
-
-  // window.filter.changeCountIndex = changeCountIndex;
 
 })();
