@@ -143,5 +143,7 @@
   window.data.modalSuccess = modalSuccess;
   window.data.closeModalError = closeModalError;
   window.data.closeModalSuccess = closeModalSuccess;
+  window.data.catalogCardsContainer = catalogCardsContainer;
+  window.data.createCard = createCard;
 
 })();

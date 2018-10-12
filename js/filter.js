@@ -3,13 +3,29 @@
 
   var selectedFoodTypes = [];
 
-  function addFilterEventListener(elements, handler) {
+
+  var rerenderProductCards = function (filteredCards) {
+    var productCardFragment = document.createDocumentFragment();
+
+    for (var i = 0; i < filteredCards.length; i++) {
+      productCardFragment.appendChild(window.data.createCard(filteredCards[i]));
+    }
+
+    document.querySelector('.catalog__cards').innerHTML = '';
+
+    window.data.catalogCardsContainer.appendChild(productCardFragment);
+  };
+
+
+
+
+  function addFilterEventListener(elements, handler, eventType) {
     if (!elements || !elements.length) {
       return;
     }
 
     window.functions.forEach(elements, function (element) {
-      element.addEventListener('change', handler);
+      element.addEventListener(eventType, handler);
     });
   }
 
@@ -26,9 +42,11 @@
       selectedFoodTypes = removeFromArray(selectedFoodTypes, type);
     }
 
-    var test = filter(selectedFoodTypes, [], []);
+    var arrSelectedProductsByType = filter(selectedFoodTypes, []);
 
-    console.log(window.data.arrProductInfo, test);
+    rerenderProductCards(filter(arrSelectedProductsByType));
+
+    console.log(arrSelectedProductsByType);
   }
 
   function getLabelText(inputId) {
@@ -45,14 +63,11 @@
     if (!Array.isArray(array)) {
       return array;
     }
-
     // не дублируем значения в массиве
     if (array.indexOf(value) > -1) {
       return array;
     }
-
     array.push(value);
-
     return array;
   }
 
@@ -70,9 +85,41 @@
     return array;
   }
 
-  addFilterEventListener(document.querySelectorAll('input[name="food-type"]'), foodTypeChangeEventHandler);
+  function rangeSliderMinEventHandler() {
+    var price = document.querySelector('.range__price--min').textContent;
+    price = Math.abs(parseInt(price, 10));
+    rangeSliderPrice.min = isNaN(price) ? 0 : price;
+  }
 
-  function filter(kinds, nutritionFacts, price) {
+  function rangeSliderMaxEventHandler() {
+    var price = document.querySelector('.range__price--max').textContent;
+    price = Math.abs(parseInt(price, 10));
+    rangeSliderPrice.max = isNaN(price) ? 0 : price;
+  }
+
+  function addRangeSliderEventListener(element, onMouseMove) {
+    element.addEventListener('mousedown', function (evt) {
+      evt.preventDefault();
+
+      var onMouseUp = function () {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+
+        // TODO filter(selectedFoodTypes, [], rangeSliderPrice)
+        console.log(filter(selectedFoodTypes, []));
+      };
+
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    });
+  }
+
+  addFilterEventListener(document.querySelectorAll('input[name="food-type"]'), foodTypeChangeEventHandler, 'change');
+
+  addRangeSliderEventListener(document.querySelector('.range__btn--left'), rangeSliderMinEventHandler);
+  addRangeSliderEventListener(document.querySelector('.range__btn--right'), rangeSliderMaxEventHandler);
+
+  function filter(kinds, nutritionFacts) {
     function sortByKnd(good) {
       if (!kinds.length) {
         return true;
@@ -99,10 +146,13 @@
     }
 
     function sortByPrice(good) {
-      return good.price >= price.min && good.price <= price.max;
+      return good.price >= window.rangeSliderPrice.min && good.price <= window.rangeSliderPrice.max;
     }
 
-    return window.data.arrProductInfo.filter(sortByKnd).filter(sortByIngridients).filter(sortByPrice);
+    return window.data.arrProductInfo
+      .filter(sortByKnd)
+      .filter(sortByIngridients)
+      .filter(sortByPrice);
   }
 
 })();

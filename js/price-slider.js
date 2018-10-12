@@ -103,6 +103,11 @@
     var minPrice = getMinPrice(arrProductInfo);
     var maxPrice = getMaxPrice(arrProductInfo);
 
+    window.rangeSliderPrice = {
+      min: minPrice,
+      max: maxPrice,
+    };
+
     sliderMinContainer.textContent = minPrice;
     sliderMaxContainer.textContent = maxPrice;
 
