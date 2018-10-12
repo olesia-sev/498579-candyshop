@@ -13,6 +13,30 @@
       if (evt.keyCode === ESC_KEYCODE) {
         action();
       }
+    },
+
+    pushToArray: function (array, value) {
+      if (!Array.isArray(array)) {
+        return array;
+      }
+      // не дублируем значения в массиве
+      if (array.indexOf(value) > -1) {
+        return array;
+      }
+      array.push(value);
+      return array;
+    },
+
+    removeFromArray: function (array, value) {
+      if (!Array.isArray(array)) {
+        return array;
+      }
+      var index = array.indexOf(value);
+
+      if (index > -1) {
+        array.splice(index, 1);
+      }
+      return array;
     }
   };
 

@@ -3,11 +3,11 @@
 (function () {
 
 // добавляем товар в корзину
-  var onBasketButtonClick = function (event) {
-    event.preventDefault();
+  var onBasketButtonClick = function (evt) {
+    evt.preventDefault();
 
-    if (event.target.classList.contains('card__btn')) {
-      var chosenProduct = event.target.closest('article'); // находим карточку, по которой был клик
+    if (evt.target.classList.contains('card__btn')) {
+      var chosenProduct = evt.target.closest('article'); // находим карточку, по которой был клик
 
       var addedProduct = Object.assign({}, chosenProduct, {
         quantity: 1
@@ -49,16 +49,17 @@
       }
     }
   };
-  window.favourite.cardsContainer.addEventListener('click', onBasketButtonClick);
+
+  document.querySelector('.catalog__cards').addEventListener('click', onBasketButtonClick);
 
   // Удаление из корзины
   var basketContainer = document.querySelector('.goods__cards');
 
-  var onDeleteButtonClick = function (event) {
-    event.preventDefault();
+  var onDeleteButtonClick = function (evt) {
+    evt.preventDefault();
 
-    if (event.target.classList.contains('card-order__close')) {
-      var targetProductCard = event.target.closest('article');
+    if (evt.target.classList.contains('card-order__close')) {
+      var targetProductCard = evt.target.closest('article');
 
       targetProductCard.parentNode.removeChild(targetProductCard);
     }
@@ -80,13 +81,13 @@
   }
 
   // увеличение и уменьшение кол-ва товаров
-  var onChangeAmountButtonClick = function (event) {
-    var targetProductCard = event.target.closest('article');
+  var onChangeAmountButtonClick = function (evt) {
+    var targetProductCard = evt.target.closest('article');
     var targetAmountInput = targetProductCard.querySelector('.card-order__count');
 
-    if (event.target.classList.contains('card-order__btn--increase')) {
+    if (evt.target.classList.contains('card-order__btn--increase')) {
       targetAmountInput.value++;
-    } else if (event.target.classList.contains('card-order__btn--decrease')) {
+    } else if (evt.target.classList.contains('card-order__btn--decrease')) {
       targetAmountInput.value--;
     }
 

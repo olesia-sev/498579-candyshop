@@ -12,7 +12,7 @@
       tabsWrappers.push('.' + radio.id);
     });
 
-    var changeRadioEventHandler = function (event) {
+    var changeRadioEventHandler = function (evt) {
       fn.forEach(tabsWrappers, function (tabWrapper) {
         var currentElement = document.querySelector(tabWrapper);
         if (currentElement) {
@@ -22,7 +22,7 @@
         }
       });
 
-      var targetElement = document.querySelector('.' + event.target.id);
+      var targetElement = document.querySelector('.' + evt.target.id);
 
       if (!targetElement) {
         return;

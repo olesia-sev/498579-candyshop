@@ -2,6 +2,9 @@
 (function () {
 
   var selectedFoodTypes = [];
+  var selectedFoodIngredients = [];
+
+  var extraFilterValue;
 
   var sortBy;
 
@@ -83,7 +86,7 @@
   var sortHandler = function (evt) {
     sortBy = evt.target.value;
 
-    rerenderProductCards(filter(selectedFoodTypes, [], sortBy));
+    rerenderProductCards(filter(selectedFoodTypes, selectedFoodIngredients, sortBy));
   };
 
   addFilterEventListener(document.querySelectorAll('input[name="sort"]'), sortHandler, 'change');
@@ -109,23 +112,74 @@
     });
   }
 
-  function foodTypeChangeEventHandler(evt) {
-    var type = getLabelText(evt.target.id);
+  function extraFilter(evt) {
+    document.querySelector('.catalog__sidebar form').reset();
+    window.initRangeSlider(window.data.arrProductInfo);
 
-    if (!type) {
-      return;
+    if (evt.target.value && extraFilterValue !== evt.target.value) {
+      evt.target.checked = true;
     }
 
-    if (evt.target.checked) {
-      selectedFoodTypes = pushToArray(selectedFoodTypes, type);
-    } else {
-      selectedFoodTypes = removeFromArray(selectedFoodTypes, type);
+    switch (evt.target.value) {
+      case 'favorite':
+        extraFilterValue = evt.target.checked ? 'favorite' : undefined;
+        break;
+
+      case 'availability':
+        extraFilterValue = evt.target.checked ? 'availability' : undefined;
+        break;
     }
 
-    var arrSelectedProductsByType = filter(selectedFoodTypes, [], sortBy);
+    rerenderProductCards(filterByExtra(extraFilterValue));
+
+    function filterByExtra(value) {
+      if (value === 'favorite') {
+        return window.data.arrProductInfo.filter(function (item) {
+          return window.favorite.includes(item.name);
+        });
+      }
+
+      if (value === 'availability') {
+        return window.data.arrProductInfo.filter(function (item) {
+          return item.amount > 0;
+        });
+      }
+
+      return window.data.arrProductInfo;
+    }
+  }
+
+  function foodChangeEventHandler(evt) {
+    function getSelectedFoodTypes(types) {
+      var type = getLabelText(evt.target.id);
+      if (!type) {
+        return types;
+      }
+      if (evt.target.checked) {
+        return window.functions.pushToArray(types, type);
+      }
+      return window.functions.removeFromArray(types, type);
+    }
+
+    function getSelectedFoodIngredients(ingr) {
+      if (evt.target.checked) {
+        return window.functions.pushToArray(ingr, evt.target.value);
+      }
+      return window.functions.removeFromArray(ingr, evt.target.value);
+    }
+
+    var name = evt.target.name;
+
+    if (name === 'food-type') {
+      selectedFoodTypes = getSelectedFoodTypes(selectedFoodTypes);
+    }
+
+    if (name === 'food-property') {
+      selectedFoodIngredients = getSelectedFoodIngredients(selectedFoodIngredients);
+    }
 
     // Показываем карточки соответствующие выбранному фильтру
-    rerenderProductCards(arrSelectedProductsByType);
+    rerenderProductCards(filter(selectedFoodTypes, selectedFoodIngredients, sortBy));
   }
 
   function getLabelText(inputId) {
@@ -135,30 +189,6 @@
       return undefined;
     }
     return label.textContent;
-  }
-
-  function pushToArray(array, value) {
-    if (!Array.isArray(array)) {
-      return array;
-    }
-    // не дублируем значения в массиве
-    if (array.indexOf(value) > -1) {
-      return array;
-    }
-    array.push(value);
-    return array;
-  }
-
-  function removeFromArray(array, value) {
-    if (!Array.isArray(array)) {
-      return array;
-    }
-    var index = array.indexOf(value);
-
-    if (index > -1) {
-      array.splice(index, 1);
-    }
-    return array;
   }
 
   function rangeSliderMinEventHandler() {
@@ -181,7 +211,7 @@
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
 
-        rerenderProductCards(filter(selectedFoodTypes, [], sortBy));
+        rerenderProductCards(filter(selectedFoodTypes, selectedFoodIngredients, sortBy));
       };
 
       document.addEventListener('mousemove', onMouseMove);
@@ -189,13 +219,15 @@
     });
   }
 
-  addFilterEventListener(document.querySelectorAll('input[name="food-type"]'), foodTypeChangeEventHandler, 'change');
+  addFilterEventListener(document.querySelectorAll('input[name="food-type"]'), foodChangeEventHandler, 'change');
+  addFilterEventListener(document.querySelectorAll('input[name="food-property"]'), foodChangeEventHandler, 'change');
+  addFilterEventListener(document.querySelectorAll('input[name="mark"]'), extraFilter, 'change');
 
   addRangeSliderEventListener(document.querySelector('.range__btn--left'), rangeSliderMinEventHandler);
   addRangeSliderEventListener(document.querySelector('.range__btn--right'), rangeSliderMaxEventHandler);
 
   function filter(kinds, nutritionFacts, sortOption) {
-    function sortByKnd(good) {
+    function filterByKind(good) {
       if (!kinds.length) {
         return true;
       }
@@ -207,27 +239,43 @@
       return false;
     }
 
-    function sortByIngredients(good) {
-      for (var key in nutritionFacts) {
-        if (
-          nutritionFacts
-          && nutritionFacts.hasOwnProperty(key)
-          && good.nutritionFacts[key] !== nutritionFacts[key]
-        ) {
-          return false;
-        }
+    function filterByIngredients(good) {
+      if (!nutritionFacts.length) {
+        return true;
       }
-      return true;
+
+      function sugar() {
+        if (!nutritionFacts.includes('sugar')) {
+          return true;
+        }
+        return good.nutritionFacts.sugar !== nutritionFacts.includes('sugar');
+      }
+
+      function gluten() {
+        if (!nutritionFacts.includes('gluten')) {
+          return true;
+        }
+        return good.nutritionFacts.gluten !== nutritionFacts.includes('gluten');
+      }
+
+      function vegetarian() {
+        if (!nutritionFacts.includes('sugar')) {
+          return true;
+        }
+        return good.nutritionFacts.vegetarian === nutritionFacts.includes('vegetarian');
+      }
+
+      return sugar() && gluten() && vegetarian();
     }
 
-    function sortByPrice(good) {
+    function filterByPrice(good) {
       return good.price >= window.rangeSliderPrice.min && good.price <= window.rangeSliderPrice.max;
     }
 
     return getSorted(sortOption, window.data.arrProductInfo
-        .filter(sortByKnd)
-        .filter(sortByIngredients)
-        .filter(sortByPrice)
+      .filter(filterByKind)
+      .filter(filterByIngredients)
+      .filter(filterByPrice)
     );
   }
 
