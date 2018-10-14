@@ -3,6 +3,7 @@
 (function () {
 
   var IMG_PATH = 'img/cards/';
+  var PRODUCTS_AMOUNT_IF_LITTLE = 5;
 
   var modalError = document.querySelector('.modal--error');
   var modalSuccess = document.querySelector('.modal--success');
@@ -29,7 +30,7 @@
     productCard.classList.remove('card--in-stock');
     if (amount === 0) {
       productCard.classList.add('card--soon');
-    } else if (amount > 0 && amount < 5) {
+    } else if (amount > 0 && amount < PRODUCTS_AMOUNT_IF_LITTLE) {
       productCard.classList.add('card--little');
     } else {
       productCard.classList.add('card--in-stock');
@@ -38,11 +39,13 @@
   };
 
   var hasSugar = function (productCard, item) {
+    var textContent;
     if (item.nutritionFacts.sugar) {
-      productCard.querySelector('.card__characteristic').textContent = 'Без сахара.' + ' ' + item.nutritionFacts.energy + ' ' + 'ккал';
+      textContent = 'Без сахара.' + ' ' + item.nutritionFacts.energy + ' ' + 'ккал';
     } else {
-      productCard.querySelector('.card__characteristic').textContent = 'Содержит сахар.' + ' ' + item.nutritionFacts.energy + ' ' + 'ккал';
+      textContent = 'Содержит сахар.' + ' ' + item.nutritionFacts.energy + ' ' + 'ккал';
     }
+    productCard.querySelector('.card__characteristic').textContent = textContent;
   };
 
   var setRating = function (reviewsAmount, productRating, item) {
@@ -84,6 +87,9 @@
 
     var cardTitle = productCard.querySelector('.card__title');
     setTitle(cardTitle, item);
+    if (window.favorite.includes(cardTitle.textContent)) {
+      productCard.querySelector('.card__btn-favorite').classList.add('card__btn-favorite--selected');
+    }
 
     var productPicture = productCard.querySelector('.card__img');
     setImage(productPicture, item);
@@ -113,9 +119,10 @@
   var successHandler = function (cards) {
     var productCardFragment = document.createDocumentFragment();
 
-    for (var i = 0; i < cards.length; i++) {
-      productCardFragment.appendChild(createCard(cards[i]));
-    }
+    cards.forEach(function (item) {
+      productCardFragment.appendChild(createCard(item));
+    });
+
     catalogCardsContainer.appendChild(productCardFragment);
 
     initCardsBlock();

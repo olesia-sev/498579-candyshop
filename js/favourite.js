@@ -16,13 +16,13 @@
       return;
     }
 
-    if (evt.target.classList.contains('card__btn-favorite--selected')) {
-      evt.target.classList.remove('card__btn-favorite--selected');
+    if (window.favorite.includes(name)) {
       window.functions.removeFromArray(window.favorite, name);
     } else {
-      evt.target.classList.add('card__btn-favorite--selected');
       window.functions.pushToArray(window.favorite, name);
     }
+
+    window.rerenderWithFavourites();
   };
 
   document.querySelector('.catalog__cards').addEventListener('click', onButtonFavoriteClick);

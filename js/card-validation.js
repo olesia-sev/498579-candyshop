@@ -11,8 +11,6 @@
   var cardStatusWrap = document.querySelector('.payment__card-status-wrap');
   var cardStatus = cardStatusWrap.querySelector('.payment__card-status');
 
-  var validityText = '';
-
   // Проверяем валидность номера карты с помощью алгоритма Луна
   function checkCardValidity(number) {
     var arr = number.split('').map(function (char, index) {
@@ -39,45 +37,41 @@
   };
 
   cardNumber.addEventListener('invalid', function () {
+    var validityText = '';
     if (cardNumber.validity.patternMismatch) {
       validityText = 'Номер карты должен содержать только цифры';
     } else if (cardNumber.validity.valueMissing) {
       validityText = 'Поле обязательно для заполнения';
-    } else {
-      validityText = '';
     }
     cardNumber.setCustomValidity(validityText);
   });
 
   cardDate.addEventListener('invalid', function () {
+    var validityText = '';
     if (cardDate.validity.patternMismatch) {
       validityText = 'Введите дату в формате мм/гг';
     } else if (cardDate.validity.valueMissing) {
       validityText = 'Поле обязательно для заполнения';
-    } else {
-      validityText = '';
     }
     cardDate.setCustomValidity(validityText);
   });
 
   cardCvc.addEventListener('invalid', function () {
+    var validityText = '';
     if (cardCvc.validity.patternMismatch) {
       validityText = 'Поле должно содержать 3 цифры';
     } else if (cardCvc.validity.valueMissing) {
       validityText = 'Поле обязательно для заполнения';
-    } else {
-      validityText = '';
     }
     cardCvc.setCustomValidity(validityText);
   });
 
   cardHolderName.addEventListener('invalid', function () {
+    var validityText = '';
     if (cardHolderName.validity.patternMismatch) {
       validityText = 'Заполните поле латинскими буквами';
     } else if (cardHolderName.validity.valueMissing) {
       validityText = 'Поле обязательно для заполнения';
-    } else {
-      validityText = '';
     }
     cardHolderName.setCustomValidity(validityText);
   });
@@ -133,8 +127,8 @@
 
   // Сбрасываем данные формы
   var formReset = function (element) {
-    var inputs = element.getElementsByTagName('input');
-    window.functions.forEach(inputs, function (input) {
+    var inputs = element.querySelectorAll('input');
+    inputs.forEach(function (input) {
       input.value = '';
     });
   };

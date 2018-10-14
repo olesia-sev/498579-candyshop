@@ -1,24 +1,24 @@
 'use strict';
 
-(function (fn) {
+(function () {
 
-  addChangeEventForRadios(document.getElementsByName('method-deliver'));
-  addChangeEventForRadios(document.getElementsByName('pay-method'));
+  addChangeEventForRadios(document.querySelectorAll('input[name="method-deliver"]'));
+  addChangeEventForRadios(document.querySelectorAll('input[name="pay-method"]'));
 
   function addChangeEventForRadios(radios) {
     var tabsWrappers = [];
 
-    fn.forEach(radios, function (radio) {
+    radios.forEach(function (radio) {
       tabsWrappers.push('.' + radio.id);
     });
 
     var changeRadioEventHandler = function (evt) {
-      fn.forEach(tabsWrappers, function (tabWrapper) {
+      tabsWrappers.forEach(function (tabWrapper) {
         var currentElement = document.querySelector(tabWrapper);
         if (currentElement) {
           currentElement.classList.add('visually-hidden');
-          changeElementsAccessibility(currentElement.getElementsByTagName('input'), true);
-          changeElementsAccessibility(currentElement.getElementsByTagName('textarea'), true);
+          changeElementsAccessibility(currentElement.querySelectorAll('input'), true);
+          changeElementsAccessibility(currentElement.querySelectorAll('textarea'), true);
         }
       });
 
@@ -29,11 +29,11 @@
       }
 
       targetElement.classList.remove('visually-hidden');
-      changeElementsAccessibility(targetElement.getElementsByTagName('input'), false);
-      changeElementsAccessibility(targetElement.getElementsByTagName('textarea'), false);
+      changeElementsAccessibility(targetElement.querySelectorAll('input'), false);
+      changeElementsAccessibility(targetElement.querySelectorAll('textarea'), false);
     };
 
-    fn.forEach(radios, function (radio) {
+    radios.forEach(function (radio) {
       radio.addEventListener('change', changeRadioEventHandler);
     });
   }
@@ -45,9 +45,9 @@
       return;
     }
 
-    fn.forEach(elements, function (element) {
+    elements.forEach(function (element) {
       element.disabled = !!isAccessible;
     });
   }
 
-})(window.functions);
+})();

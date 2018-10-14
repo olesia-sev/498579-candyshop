@@ -12,6 +12,47 @@
     return arr.concat().sort(compareFunction);
   }
 
+  // Функция сортировки товаров по цене - сначала дорогие
+  function expensiveSorting(a, b) {
+    if (a.price > b.price) {
+      return -1;
+    }
+    if (a.price < b.price) {
+      return 1;
+    }
+    return 0;
+  }
+
+  // Функция сортировки товаров по цене - сначала дешёвые
+  function cheepSorting(a, b) {
+    if (a.price > b.price) {
+      return 1;
+    }
+    if (a.price < b.price) {
+      return -1;
+    }
+    return 0;
+  }
+
+  // Функция сортировки товаров по рейтингу
+  function ratingSorting(a, b) {
+    // товары, расположенные в порядке убывания рейтинга
+    if (a.rating.value > b.rating.value) {
+      return -1;
+    }
+    if (a.rating.value < b.rating.value) {
+      return 1;
+    }
+    // при совпадении рейтинга, выше показывается товар, у которого больше голосов в рейтинге.
+    if (a.rating.number > b.rating.number) {
+      return -1;
+    }
+    if (a.rating.number < b.rating.number) {
+      return 1;
+    }
+    return 0;
+  }
+
   function getSorted(sortOption, arr) {
     if (!sortOption) {
       return arr;
@@ -27,57 +68,17 @@
 
       // Сначала дорогие
       case 'expensive':
-        sorted = immutableSort(arr, function (a, b) {
-          if (a.price > b.price) {
-            return -1;
-          }
-
-          if (a.price < b.price) {
-            return 1;
-          }
-
-          return 0;
-        });
+        sorted = immutableSort(arr, expensiveSorting);
         break;
 
       // Сначала дешёвые
       case 'cheep':
-        sorted = immutableSort(arr, function (a, b) {
-          if (a.price > b.price) {
-            return 1;
-          }
-
-          if (a.price < b.price) {
-            return -1;
-          }
-
-          return 0;
-        });
+        sorted = immutableSort(arr, cheepSorting);
         break;
 
       // По рейтингу
       case 'rating':
-        sorted = immutableSort(arr, function (a, b) {
-          // товары, расположенные в порядке убывания рейтинга
-          if (a.rating.value > b.rating.value) {
-            return -1;
-          }
-
-          if (a.rating.value < b.rating.value) {
-            return 1;
-          }
-
-          // при совпадении рейтинга, выше показывается товар, у которого больше голосов в рейтинге.
-          if (a.rating.number > b.rating.number) {
-            return -1;
-          }
-
-          if (a.rating.number < b.rating.number) {
-            return 1;
-          }
-
-          return 0;
-        });
+        sorted = immutableSort(arr, ratingSorting);
         break;
     }
     return sorted;
@@ -89,31 +90,35 @@
     rerenderProductCards(filter(selectedFoodTypes, selectedFoodIngredients, sortBy));
   };
 
-  addFilterEventListener(document.querySelectorAll('input[name="sort"]'), sortHandler, 'change');
+  window.functions.addEventListenersForElements(document.querySelectorAll('input[name="sort"]'), sortHandler, 'change');
+
+  var rerenderWithFavourites = function () {
+    if (extraFilterValue === 'favorite') {
+      rerenderProductCards(filterByExtra(window.data.arrProductInfo, 'favorite'));
+    } else {
+      rerenderProductCards(filter(selectedFoodTypes, selectedFoodIngredients, sortBy, true));
+    }
+  };
 
   // функция перерисовки карточек
   var rerenderProductCards = function (filteredCards) {
     var productCardFragment = document.createDocumentFragment();
 
-    for (var i = 0; i < filteredCards.length; i++) {
-      productCardFragment.appendChild(window.data.createCard(filteredCards[i]));
-    }
+    filteredCards.forEach(function (item) {
+      productCardFragment.appendChild(window.data.createCard(item));
+    });
 
     window.data.catalogCardsContainer.innerHTML = '';
     window.data.catalogCardsContainer.appendChild(productCardFragment);
   };
 
-  function addFilterEventListener(elements, handler, eventType) {
-    if (!elements || !elements.length) {
-      return;
-    }
-    window.functions.forEach(elements, function (element) {
-      element.addEventListener(eventType, handler);
-    });
-  }
-
   function extraFilter(evt) {
+    // сброс состояния
     document.querySelector('.catalog__sidebar form').reset();
+    selectedFoodTypes = [];
+    selectedFoodIngredients = [];
+    sortBy = undefined;
+
     window.initRangeSlider(window.data.arrProductInfo);
 
     if (evt.target.value && extraFilterValue !== evt.target.value) {
@@ -128,25 +133,28 @@
       case 'availability':
         extraFilterValue = evt.target.checked ? 'availability' : undefined;
         break;
+
+      default:
+        extraFilterValue = undefined;
     }
 
-    rerenderProductCards(filterByExtra(extraFilterValue));
+    rerenderProductCards(filterByExtra(window.data.arrProductInfo, extraFilterValue));
+  }
 
-    function filterByExtra(value) {
-      if (value === 'favorite') {
-        return window.data.arrProductInfo.filter(function (item) {
-          return window.favorite.includes(item.name);
-        });
-      }
-
-      if (value === 'availability') {
-        return window.data.arrProductInfo.filter(function (item) {
-          return item.amount > 0;
-        });
-      }
-
-      return window.data.arrProductInfo;
+  function filterByExtra(products, value) {
+    if (value === 'favorite') {
+      return products.filter(function (item) {
+        return window.favorite.includes(item.name);
+      });
     }
+
+    if (value === 'availability') {
+      return products.filter(function (item) {
+        return item.amount > 0;
+      });
+    }
+
+    return products;
   }
 
   function foodChangeEventHandler(evt) {
@@ -219,24 +227,26 @@
     });
   }
 
-  addFilterEventListener(document.querySelectorAll('input[name="food-type"]'), foodChangeEventHandler, 'change');
-  addFilterEventListener(document.querySelectorAll('input[name="food-property"]'), foodChangeEventHandler, 'change');
-  addFilterEventListener(document.querySelectorAll('input[name="mark"]'), extraFilter, 'change');
+  var markInputs = document.querySelectorAll('input[name="mark"]');
+
+  window.functions.addEventListenersForElements(document.querySelectorAll('input[name="food-type"]'), foodChangeEventHandler, 'change');
+  window.functions.addEventListenersForElements(document.querySelectorAll('input[name="food-property"]'), foodChangeEventHandler, 'change');
+  window.functions.addEventListenersForElements(markInputs, extraFilter, 'change');
 
   addRangeSliderEventListener(document.querySelector('.range__btn--left'), rangeSliderMinEventHandler);
   addRangeSliderEventListener(document.querySelector('.range__btn--right'), rangeSliderMaxEventHandler);
 
-  function filter(kinds, nutritionFacts, sortOption) {
+  function filter(kinds, nutritionFacts, sortOption, needFavourite) {
     function filterByKind(good) {
       if (!kinds.length) {
         return true;
       }
-      for (var i = 0; i < kinds.length; i++) {
-        if (good.kind === kinds[i]) {
-          return true;
-        }
-      }
-      return false;
+
+      var found = kinds.find(function (kind) {
+        return good.kind === kind;
+      });
+
+      return !!found;
     }
 
     function filterByIngredients(good) {
@@ -272,11 +282,20 @@
       return good.price >= window.rangeSliderPrice.min && good.price <= window.rangeSliderPrice.max;
     }
 
-    return getSorted(sortOption, window.data.arrProductInfo
-      .filter(filterByKind)
-      .filter(filterByIngredients)
-      .filter(filterByPrice)
-    );
+    function filterByParameters(good) {
+      return filterByKind(good) && filterByIngredients(good) && filterByPrice(good);
+    }
+
+    if (!needFavourite) {
+      extraFilterValue = undefined;
+      markInputs.forEach(function (input) {
+        input.checked = false;
+      });
+    }
+
+    return getSorted(sortOption, window.data.arrProductInfo.filter(filterByParameters));
   }
+
+  window.rerenderWithFavourites = rerenderWithFavourites;
 
 })();
